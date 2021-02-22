@@ -84,7 +84,12 @@
             }
         };
 
-        function generateRow(options = config.row) {
+        function generateRow(options = {}) {
+            options = {
+                ...config.row,
+                ...options
+            };
+
             return `
                 <tr class="${options.class}">
                     <td>${chance.name()}</td>
@@ -122,13 +127,14 @@
 
             appendRows(rows) {
                 const nodes = this.parseDOM(rows);
+                console.log(nodes)
 
-                for (let node of nodes) {
-                    this.table.appendChild(node);
+                while (nodes.length) {
+                    this.table.appendChild(nodes[0]);
                 }
             },
 
-            clear() {
+            clear () {
                 this.table.innerHTML = '';
             },
 
@@ -136,6 +142,9 @@
                 this.clear();
 
                 const rows = Array(config.people).fill('').map(() => generateRow()).join('');
+                
+                console.log(rows)
+
                 this.appendRows(rows);
             },
 
