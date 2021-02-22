@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Table</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+        crossorigin="anonymous"></script>
+    <script src="http://chancejs.com/chance.min.js"></script>
+    <style>
+        @keyframes fadeInPop {
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        tr.animated {
+            animation: fadeInPop .1s;
+        }
+
+        .load-all {
+            cursor: pointer;
+        }
+
+        body {
+            background: #212529;
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col">
+                <div class="jumbotron">
+                    <h1>Random Table</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-dark load-all">Cargar tabla</button>
+                <button type="button" class="btn btn-light load-all-animated">Cargar tabla animada</button>
+                <hr class="my-4">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped table-dark">
+                    <thead>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Birthday</th>
+                    </thead>
+                    <tbody>
+                        <td colspan="4" class="load-all">Cargar datos...</td>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const config = {
+            speed: 100,
+            people: 10,
+            row: {
+                class: ''
+            }
+        };
+
+        function generateRow(options = config.row) {
+            return `
+                <tr class="${options.class}">
+                    <td>${chance.name()}</td>
+                    <td>${chance.age()}</td>
+                    <td>${chance.gender()}</td>
+                    <td>${chance.birthday({ string: true })}</td>
+                </tr>
+            `;
+        }
+
+        const Program = {
+            init() {
+                this.table = document.querySelector('table tbody');
+
+                const parser = new DOMParser().parseFromString;
+                this.DOMParser = (str) => parser(str, 'text/xml');
+
+                this.events();
+            },
+
+            events () {
+                document.querySelectorAll('.load-all').forEach(button => {
+                    button.addEventListener('click', () => this.loadAll());
+                })
+                document.querySelectorAll('.load-all-animated').forEach(button => {
+                    button.addEventListener('click', () => this.loadAllAnimated());
+                })
+            },
+
+            parseDOM(str) {
+                const wrapper = document.createElement('tbody');
+                wrapper.innerHTML = str;
+                return wrapper.children;
+            },
+
+            appendRows(rows) {
+                const nodes = this.parseDOM(rows);
+
+                for (let node of nodes) {
+                    this.table.appendChild(node);
+                }
+            },
+
+            clear() {
+                this.table.innerHTML = '';
+            },
+
+            loadAll() {
+                this.clear();
+
+                const rows = Array(config.people).fill('').map(() => generateRow()).join('');
+                this.appendRows(rows);
+            },
+
+            loadAllAnimated() {
+                this.clear();
+                let count = 0;
+
+                this.interval = setInterval(() => {
+                    this.appendRows(generateRow({ class: 'animated' }));
+                    
+                    count++;
+
+                    if (count === config.people) {
+                        clearInterval(this.interval);
+                    }
+                }, config.speed);
+            }
+        };
+
+        Program.init();
+
+    </script>
+
+</body>
+
+</html>
